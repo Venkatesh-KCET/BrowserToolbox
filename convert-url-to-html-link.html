@@ -1,0 +1,120 @@
+<script>
+    function copyToClipboard() {
+        text = document.querySelector("#newCode").innerHTML;
+        var e = document.createElement('div');
+        e.innerHTML = text;
+        navigator.clipboard.writeText(e.childNodes[0].nodeValue);
+    }
+    function Reset() {
+        document.querySelector("#oldText").value = "";
+        document.querySelector("#newCode").innerHTML = "";
+    }
+
+    function radioButtonCheck(selector) {
+        const elements = document.querySelectorAll(selector);
+        return Array.from(elements).find((element) => element.checked);
+    }
+
+    function urlToHTML() {
+        const input = document.querySelector("#oldText").value;
+        const urlsep = radioButtonCheck(".urlsep").value;
+        let linkArray;
+
+        if (urlsep === "line") {
+            linkArray = input.split("\n");
+        } else if (urlsep === "comma") {
+            linkArray = input.split(",");
+        } else if (urlsep === "space") {
+            linkArray = input.split(" ");
+        }
+
+        let output = "";
+        const urlformat = radioButtonCheck(".urlformat").value;
+        const lTarget = document.getElementById("lTarget").value;
+
+        for (let i = 0; i < linkArray.length; i++) {
+            const linkTag = document.createElement("a");
+            linkTag.innerText = linkArray[i];
+            linkTag.href = linkArray[i];
+
+            if (lTarget !== "nope") {
+                linkTag.target = lTarget;
+            }
+
+            let containerTag;
+
+            if (urlformat === "nope") {
+                output += linkTag.outerHTML + "\n";
+            } else if (urlformat === "paragraph") {
+                containerTag = document.createElement("p");
+                containerTag.appendChild(linkTag);
+                output += containerTag.outerHTML + "\n";
+            } else if (urlformat === "br") {
+                containerTag = document.createElement("p");
+                containerTag.appendChild(linkTag);
+                containerTag.appendChild(document.createElement("br"));
+                output += containerTag.outerHTML + "\n";
+            } else if (urlformat === "div") {
+                containerTag = document.createElement("div");
+                containerTag.appendChild(linkTag);
+                output += containerTag.outerHTML + "\n";
+            } else if (urlformat === "ul") {
+                containerTag = document.createElement("li");
+                containerTag.appendChild(linkTag);
+                output += containerTag.outerHTML + "\n";
+            } else if (urlformat === "ol") {
+                containerTag = document.createElement("li");
+                containerTag.appendChild(linkTag);
+                output += containerTag.outerHTML + "\n";
+            }
+        }
+
+        if (urlformat === "br" || urlformat === "ul" || urlformat === "ol") {
+            const containerTag = document.createElement(urlformat === "br" ? "p" : urlformat);
+            containerTag.innerHTML = output;
+            output = containerTag.outerHTML;
+        }
+
+        document.querySelector("#newCode").innerHTML = output;
+    }
+</script>
+<form>
+    <h2>Convert Multiple URLs into Hyperinks</h2>
+    <p>Convert your URLS to HTML links using the options below</p>
+    <p><input type="radio" class="urlsep" name="urlsep" value="line" checked="checked"> <label for="urlsep1">My URLs are on separate lines</label></p>
+    <p><input type="radio" class="urlsep" name="urlsep" value="comma"> <label for="urlsep2">My URLs are separated by commas.</label></p>
+    <p><input type="radio" class="urlsep" name="urlsep" value="space"> <label for="urlsep3">My URLs are separated by spaces.</label></p>
+
+    <p><strong>HTML Link Formatting</strong> (optional)</p>
+    <p><input type="radio" class="urlformat" name="urlformat" value="nope" checked="checked"> <label for="urlformat1">No special formatting</label></p>
+    <p><input type="radio" class="urlformat" name="urlformat" value="paragraph"> <label for="urlformat2">Wrap each link in a paragraph tag</label></p>
+    <p><input type="radio" class="urlformat" name="urlformat" value="br"> <label for="urlformat3">Wrap all the links in a &lt;p&gt; with a &lt;br /&gt; after each link</label></p>
+    <p><input type="radio" class="urlformat" name="urlformat" value="div"> <label for="urlformat4">Wrap each link in a div tag</label></p>
+    <p><input type="radio" class="urlformat" name="urlformat" value="ul"> <label for="urlformat5">Put all the links in a bulleted list</label></p>
+    <p><input type="radio" class="urlformat" name="urlformat" value="ol"> <label for="urlformat6">Put all the links in a numbered list</label></p>
+
+    <p>
+        <label for="lTarget">Link Target (optional)</label> 
+        <select id="lTarget">
+            <option value="nope">No Target</option>
+            <option value="_blank">_blank (New Window)</option>
+            <option value="_self">_self</option>
+            <option value="_parent">_parent</option>
+            <option value="_top">_top</option>
+        </select>
+    </p>
+
+    <h3>Paste Your List of URLS in the Box Below</h3>
+    <p><label for="oldText">Paste your URLs in the box below and then click the button. <br>
+    The URLs will appear as link code in the box at the bottom of the page.</label> </p>
+    
+    <p><textarea id="oldText" name="oldText" rows="6" cols="36"></textarea></p>
+
+    <p><input type="button" value="Convert URL to to HTML link" onclick="urlToHTML()">
+    <input type="button" value="Reset" onclick="Reset()"></p>
+
+    <h2>URLs Converted into HTML Link Code</h2>
+    <p><label for="newCode">Copy your URL links code from the box below.</label></p>
+    <p><textarea id="newCode" name="newCode" rows="9" cols="36"></textarea></p>
+    <p><input type="button" value="Copy to Clipboard" onclick="copyToClipboard()"></p>
+</form>
